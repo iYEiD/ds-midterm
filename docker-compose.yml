@@ -1,0 +1,128 @@
+version: '3.8'
+
+services:
+  # Zookeeper - Required for Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: nba-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - scraper-network
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+
+  # Kafka - Message Broker
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: nba-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LOG_RETENTION_HOURS: 168
+    networks:
+      - scraper-network
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kafka Init - Creates topics on startup
+  kafka-init:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: nba-kafka-init
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - scraper-network
+    entrypoint: ['/bin/sh', '-c']
+    command: |
+      "
+      echo 'Waiting for Kafka to be ready...'
+      sleep 10
+      
+      echo 'Creating Kafka topics...'
+      kafka-topics --bootstrap-server kafka:9093 --create --if-not-exists --topic scraping-tasks --partitions 3 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9093 --create --if-not-exists --topic scraping-results --partitions 3 --replication-factor 1
+      kafka-topics --bootstrap-server kafka:9093 --create --if-not-exists --topic processing-tasks --partitions 3 --replication-factor 1
+      
+      echo 'Listing topics...'
+      kafka-topics --bootstrap-server kafka:9093 --list
+      
+      echo 'Kafka topics created successfully!'
+      "
+
+  # MongoDB - Data Storage
+  mongodb:
+    image: mongo:7.0
+    container_name: nba-mongodb
+    command: mongod --bind_ip_all
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: nba_scraper
+    networks:
+      - scraper-network
+    volumes:
+      - mongo_data:/data/db
+      - ./infrastructure/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Ray Head Node - Distributed Computing
+  ray-head:
+    image: rayproject/ray:2.9.0-py310
+    container_name: nba-ray-head
+    command: ray start --head --port=6379 --dashboard-host=0.0.0.0 --dashboard-port=8265 --block
+    ports:
+      - "8265:8265"  # Ray Dashboard
+      - "6379:6379"  # Ray Redis
+      - "10001:10001"  # Ray Client
+    networks:
+      - scraper-network
+    shm_size: 2gb
+    environment:
+      RAY_GRAFANA_HOST: 0.0.0.0
+      RAY_PROMETHEUS_HOST: 0.0.0.0
+    healthcheck:
+      test: ["CMD", "ray", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  scraper-network:
+    driver: bridge
+    name: nba-scraper-network
+
+volumes:
+  zookeeper_data:
+    name: nba-zookeeper-data
+  zookeeper_logs:
+    name: nba-zookeeper-logs
+  kafka_data:
+    name: nba-kafka-data
+  mongo_data:
+    name: nba-mongo-data
