@@ -3,6 +3,8 @@ Kafka URL manager for distributed scraping
 Handles producing and consuming URLs for scraping tasks
 """
 from kafka import KafkaProducer, KafkaConsumer, KafkaAdminClient
+from kafka.admin import NewTopic
+from kafka.structs import TopicPartition
 from kafka.errors import KafkaError
 from typing import List, Optional, Callable
 import json
@@ -208,30 +210,38 @@ class KafkaURLManager:
             Number of pending messages
         """
         try:
+            # Create consumer WITHOUT subscribing - use manual assignment only
             consumer = KafkaConsumer(
-                self.scraping_topic,
                 bootstrap_servers=self.bootstrap_servers,
                 group_id='count-checker',
-                auto_offset_reset='earliest'
+                auto_offset_reset='earliest',
+                enable_auto_commit=False
             )
             
             # Get partition info
             partitions = consumer.partitions_for_topic(self.scraping_topic)
             if not partitions:
+                consumer.close()
                 return 0
             
-            # Calculate total pending
+            # Manually assign all partitions
+            topic_partitions = [TopicPartition(self.scraping_topic, p) for p in partitions]
+            consumer.assign(topic_partitions)
+            
+            # Calculate total pending across all partitions
             pending = 0
-            for partition in partitions:
-                tp = (self.scraping_topic, partition)
-                consumer.assign([tp])
+            end_offsets = consumer.end_offsets(topic_partitions)
+            
+            for tp in topic_partitions:
+                # Get committed offset for this partition (what's been consumed)
+                committed = consumer.committed(tp)
+                committed_offset = committed if committed is not None else 0
                 
-                # Get high water mark
-                end_offset = consumer.end_offsets([tp])[tp]
-                # Get current position
-                current_offset = consumer.position(tp)
+                # Get high water mark (total messages)
+                end_offset = end_offsets[tp]
                 
-                pending += (end_offset - current_offset)
+                # Pending = messages not yet consumed
+                pending += (end_offset - committed_offset)
             
             consumer.close()
             return pending
