@@ -270,3 +270,166 @@ docker-compose logs ray-head
 # Verify Ray is running
 docker exec -it nba-ray-head ray status
 ```
+
+---
+
+---
+
+# 🕷️ Phase 3: Web Scraping Module Testing
+
+## What Was Built:
+
+Phase 3 includes:
+- ✅ **Configuration module** (`config.py`) - Centralized settings management
+- ✅ **MongoDB Storage** (`scraper/storage.py`) - Database operations for raw and processed data
+- ✅ **Kafka URL Manager** (`scraper/url_manager.py`) - Distributed URL queue management
+- ✅ **NBA Scraper** (`scraper/nba_scraper.py`) - Web scraper with retry logic and rate limiting
+- ✅ **Distributed Scraper** (`scraper/distributed_scraper.py`) - Ray-based parallel scraping
+- ✅ **Test Suite** (`tests/test_scraper.py`) - Comprehensive tests for all components
+
+## Step 1: Run the Test Suite
+
+```bash
+# Make sure you're in the project directory with venv activated
+cd /home/yeid/DS-MT
+source venv/bin/activate
+
+# Run the comprehensive test suite
+python tests/test_scraper.py
+```
+
+This will test:
+1. ✅ Configuration loading
+2. ✅ MongoDB storage operations
+3. ✅ Kafka URL submission and retrieval
+4. ✅ NBA scraper functionality
+5. ✅ Ray distributed scraping
+
+## Step 2: Test Individual Components (Optional)
+
+### Test Basic Scraper
+```bash
+# Scrape NBA stats page
+python scraper/nba_scraper.py
+```
+
+### Test Distributed Scraper
+```bash
+# Test Ray-based parallel scraping
+python scraper/distributed_scraper.py
+```
+
+## Step 3: Check the Data in MongoDB
+
+```bash
+# View scraped data
+docker exec -it nba-mongodb mongosh nba_scraper --eval "db.raw_scraped_data.find().limit(3).pretty()"
+
+# Count documents
+docker exec -it nba-mongodb mongosh nba_scraper --eval "db.raw_scraped_data.countDocuments({})"
+
+# View scraping metadata
+docker exec -it nba-mongodb mongosh nba_scraper --eval "db.scraping_metadata.find().pretty()"
+```
+
+## Step 4: Check Kafka Topics
+
+```bash
+# View messages in scraping-tasks topic
+docker exec -it nba-kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic scraping-tasks --from-beginning --max-messages 5
+
+# View messages in scraping-results topic
+docker exec -it nba-kafka kafka-console-consumer --bootstrap-server localhost:9092 --topic scraping-results --from-beginning --max-messages 5
+```
+
+## Step 5: Check Ray Dashboard
+
+Open your browser and visit:
+```
+http://localhost:8265
+```
+
+You should see:
+- Active workers
+- Task execution history
+- Resource utilization
+
+## Step 6: View Logs
+
+```bash
+# View application logs
+tail -f logs/app.log
+
+# Or view test logs
+tail -f logs/test_scraper.log
+```
+
+---
+
+## 📋 Phase 3 Checklist
+
+- [ ] Test suite runs successfully
+- [ ] Can scrape NBA stats pages
+- [ ] Data is stored in MongoDB
+- [ ] URLs are submitted to Kafka
+- [ ] Ray distributed scraping works
+- [ ] Ray dashboard shows active workers
+- [ ] Logs are being created
+
+---
+
+## ⚠️ Troubleshooting Phase 3
+
+### If tests fail with "OpenAI API key not set":
+This is expected! The OpenAI key is only needed for Phase 5 (RAG). You can ignore this for now.
+
+### If scraping fails with connection errors:
+```bash
+# Check your internet connection
+ping www.nba.com
+
+# Check if NBA.com is accessible
+curl -I https://www.nba.com/stats
+```
+
+### If Ray fails to initialize:
+```bash
+# Make sure Ray container is running
+docker-compose ps ray-head
+
+# Check Ray logs
+docker-compose logs ray-head
+
+# Try restarting Ray
+docker-compose restart ray-head
+```
+
+### If MongoDB connection fails:
+```bash
+# Verify MongoDB is running
+docker-compose ps mongodb
+
+# Test connection
+docker exec -it nba-mongodb mongosh --eval "db.adminCommand('ping')"
+```
+
+### If Kafka producer fails:
+```bash
+# Verify Kafka is running
+docker-compose ps kafka
+
+# Check Kafka logs
+docker-compose logs kafka
+```
+
+---
+
+## 🚀 What's Next?
+
+Once all Phase 3 tests pass, you're ready for:
+
+**Phase 4: Data Processing Module**
+- HTML parser for NBA tables
+- Data normalization and cleaning
+- Ray-based distributed processing
+- Storage of clean structured data
