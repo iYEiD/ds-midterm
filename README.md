@@ -1,106 +1,210 @@
-# 🏀 Distributed RAG-Based NBA Stats Scraper# Distributed RAG-Based Web Scraper Framework
+# NBA Statistics Scraper - Distributed RAG System# 🏀 Distributed RAG-Based NBA Stats Scraper# Distributed RAG-Based Web Scraper Framework
 
 
 
-A **production-grade distributed web scraping system** with RAG (Retrieval-Augmented Generation) capabilities for NBA statistics. Built with Kafka, MongoDB, ChromaDB, and OpenAI GPT-4.A distributed web scraping system with RAG (Retrieval-Augmented Generation) capabilities for scraping and analyzing NBA player statistics.
+A production-grade distributed system for NBA statistics scraping, processing, and AI-powered analysis. Built with microservices architecture using Kafka, MongoDB, ChromaDB, and GPT-4.
 
 
 
-[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)## 🎯 Target Use Case
+## 🎯 Quick StartA **production-grade distributed web scraping system** with RAG (Retrieval-Augmented Generation) capabilities for NBA statistics. Built with Kafka, MongoDB, ChromaDB, and OpenAI GPT-4.A distributed web scraping system with RAG (Retrieval-Augmented Generation) capabilities for scraping and analyzing NBA player statistics.
 
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.120.2-green.svg)](https://fastapi.tiangolo.com/)Scraping NBA player statistics tables from `https://www.nba.com/stats/alltime-leaders` and similar structured data pages, with intelligent querying via natural language.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🏗️ Architecture
+### Prerequisites
 
-## 🌟 Features
+- Python 3.12+, Docker, Node.js 18+
+
+- OpenAI API key[![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)## 🎯 Target Use Case
+
+
+
+### Setup (5 minutes)[![FastAPI](https://img.shields.io/badge/FastAPI-0.120.2-green.svg)](https://fastapi.tiangolo.com/)Scraping NBA player statistics tables from `https://www.nba.com/stats/alltime-leaders` and similar structured data pages, with intelligent querying via natural language.
+
+```bash
+
+# 1. Clone and configure[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+git clone <repo-url> && cd DS-MT
+
+cp .env.example .env  # Add your OpenAI API key## 🏗️ Architecture
+
+
+
+# 2. Start Docker infrastructure## 🌟 Features
+
+docker-compose up -d
 
 ### Tech Stack
 
-- ⚡ **Distributed Scraping**: Kafka-based event-driven architecture with horizontal scaling- **Distributed Computing**: Ray
+# 3. Setup Python backend
+
+python3 -m venv venv && source venv/bin/activate- ⚡ **Distributed Scraping**: Kafka-based event-driven architecture with horizontal scaling- **Distributed Computing**: Ray
+
+pip install -r requirements.txt
 
 - 🤖 **AI-Powered Queries**: Natural language queries using OpenAI GPT-4 and vector search- **Message Queue**: Apache Kafka
 
-- 🔄 **Fault Tolerance**: Exponential backoff retry logic and dead letter queue- **Databases**: 
+# 4. Start services (3 terminals)
+
+# Terminal 1: API Server- 🔄 **Fault Tolerance**: Exponential backoff retry logic and dead letter queue- **Databases**: 
+
+python -m uvicorn api.main:app --reload --host 0.0.0.0 --port 8000
 
 - 📊 **RESTful API**: 15+ endpoints for data access and system management  - MongoDB (raw and processed data storage)
 
-- 📈 **Monitoring**: Comprehensive metrics (CPU, memory, database stats)  - ChromaDB (vector embeddings)
+# Terminal 2: Kafka Workers
 
-- 🧪 **Tested**: Complete E2E test suite with 100% pass rate- **LLM**: OpenAI API
-
-- 🐳 **Containerized**: Docker Compose for easy deployment- **Web Framework**: FastAPI
-
-- **Scraping**: Scrapy, Selenium, Playwright
-
-## 🚀 Quick Start- **Deployment**: Docker Compose
+./scripts/start_workers.sh- 📈 **Monitoring**: Comprehensive metrics (CPU, memory, database stats)  - ChromaDB (vector embeddings)
 
 
+
+# Terminal 3: React UI- 🧪 **Tested**: Complete E2E test suite with 100% pass rate- **LLM**: OpenAI API
+
+cd ui && npm install && npm run dev
+
+```- 🐳 **Containerized**: Docker Compose for easy deployment- **Web Framework**: FastAPI
+
+
+
+### Access- **Scraping**: Scrapy, Selenium, Playwright
+
+- **Web UI**: http://localhost:5173
+
+- **API Docs**: http://localhost:8000/docs## 🚀 Quick Start- **Deployment**: Docker Compose
+
+- **Health Check**: http://localhost:8000/api/v1/health
+
+
+
+## 🏗️ System Architecture
 
 ```bash### Project Structure
 
-# 1. Clone and setup```
+```
 
-git clone https://github.com/iYEiD/ds-midterm.gitdistributed-rag-scraper/
+React UI (5173) → FastAPI (8000) → MongoDB + ChromaDB + Kafka# 1. Clone and setup```
 
-cd DS-MT├── scraper/              # Web scraping module
+                                   → Scraper/Processor Workers
 
-├── processor/            # Data processing module
-
-# 2. Start infrastructure├── rag/                  # RAG and LLM integration
-
-docker-compose up -d├── api/                  # FastAPI service
-
-├── infrastructure/       # Kafka, MongoDB configs
-
-# 3. Setup Python environment├── docker/               # Dockerfiles
-
-python -m venv venv├── tests/                # Unit and integration tests
-
-source venv/bin/activate├── docs/                 # Documentation and screenshots
-
-pip install -r requirements.txt├── docker-compose.yml    # Local infrastructure
-
-├── requirements.txt      # Python dependencies
-
-# 4. Start API server└── README.md            # This file
-
-uvicorn api.main:app --host 0.0.0.0 --port 8000```
-
-
-
-# 5. Test the system## 🚀 Quick Start
-
-curl http://localhost:8000/api/v1/health
-
-```### Prerequisites
-
-- Python 3.10+
-
-## 📚 Documentation- Docker and Docker Compose
-
-- OpenAI API Key
-
-- **[Complete Project Report](docs/PROJECT_REPORT.md)** - Comprehensive system documentation
-
-- **[Testing Guide](TESTING_GUIDE.md)** - How to test the distributed system### 1. Clone and Setup Virtual Environment
-
-- **[API Documentation](http://localhost:8000/api/v1/docs)** - Interactive API docs (when server running)```bash
-
-# Clone the repository
-
-## 🏗️ Architecturegit clone <your-repo-url>
-
-cd DS-MT
+                                   → OpenAI GPT-4git clone https://github.com/iYEiD/ds-midterm.gitdistributed-rag-scraper/
 
 ```
 
-User → Nginx → FastAPI → Orchestrator → Kafka Queue# Create virtual environment
+cd DS-MT├── scraper/              # Web scraping module
+
+**6 UI Pages**: Dashboard | Search | RAG Query | Leaders | Submit Job | System Health
+
+├── processor/            # Data processing module
+
+## 📊 Current System Status
+
+# 2. Start infrastructure├── rag/                  # RAG and LLM integration
+
+- ✅ 50 NBA players with complete career stats
+
+- ✅ 50 vector embeddings for semantic searchdocker-compose up -d├── api/                  # FastAPI service
+
+- ✅ RAG-powered AI queries with GPT-4
+
+- ✅ Real-time system monitoring├── infrastructure/       # Kafka, MongoDB configs
+
+- ✅ < 2s query response time
+
+# 3. Setup Python environment├── docker/               # Dockerfiles
+
+## 🔧 Management
+
+python -m venv venv├── tests/                # Unit and integration tests
+
+**Workers:**
+
+```bashsource venv/bin/activate├── docs/                 # Documentation and screenshots
+
+./scripts/start_workers.sh   # Start scraper + processor
+
+./scripts/stop_workers.sh    # Stop all workerspip install -r requirements.txt├── docker-compose.yml    # Local infrastructure
+
+tail -f logs/scraper_worker.log  # View logs
+
+```├── requirements.txt      # Python dependencies
+
+
+
+**Troubleshooting:**# 4. Start API server└── README.md            # This file
+
+```bash
+
+docker-compose restart       # Restart infrastructureuvicorn api.main:app --host 0.0.0.0 --port 8000```
+
+docker-compose logs -f       # View container logs
+
+pytest tests/ -v             # Run test suite
+
+```
+
+# 5. Test the system## 🚀 Quick Start
+
+## 📚 Documentation
+
+curl http://localhost:8000/api/v1/health
+
+- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Complete setup, infrastructure, troubleshooting
+
+- **[docs/FINAL_PROJECT_REPORT.md](docs/FINAL_PROJECT_REPORT.md)** - Project report with architecture details```### Prerequisites
+
+- **[REQUIREMENTS_CHECKLIST.md](REQUIREMENTS_CHECKLIST.md)** - Requirements tracking
+
+- Python 3.10+
+
+## 🛠️ Tech Stack
+
+## 📚 Documentation- Docker and Docker Compose
+
+**Backend**: Python 3.12, FastAPI, Selenium, Kafka, MongoDB, ChromaDB, GPT-4  
+
+**Frontend**: React 19, Vite, Axios, Recharts, React Router  - OpenAI API Key
+
+**Infrastructure**: Docker, Docker Compose
+
+- **[Complete Project Report](docs/PROJECT_REPORT.md)** - Comprehensive system documentation
+
+## 📋 Key Features
+
+- **[Testing Guide](TESTING_GUIDE.md)** - How to test the distributed system### 1. Clone and Setup Virtual Environment
+
+- Distributed web scraping with Selenium (headless Chrome)
+
+- Kafka message queues for async processing- **[API Documentation](http://localhost:8000/api/v1/docs)** - Interactive API docs (when server running)```bash
+
+- Vector embeddings with ChromaDB for semantic search
+
+- RAG system with GPT-4 for natural language queries# Clone the repository
+
+- Real-time monitoring dashboard
+
+- RESTful API with 15+ endpoints## 🏗️ Architecturegit clone <your-repo-url>
+
+- Responsive React UI with data visualization
+
+cd DS-MT
+
+## ⚠️ Notes
+
+```
+
+- **Development setup** - MongoDB has no auth, CORS allows localhost
+
+- **API Key required** - Add `OPENAI_API_KEY` to `.env`User → Nginx → FastAPI → Orchestrator → Kafka Queue# Create virtual environment
+
+- **Resource usage** - ~2.5 GB RAM, 30% CPU during operation
 
                    ↓                          ↓python -m venv venv
 
+---
+
                 MongoDB ←─ Scraper Workers ←──┘source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+**Version**: 1.0 | **Status**: Production Ready ✅ | **Last Updated**: Oct 31, 2025
 
                    ↓              ↓```
 
