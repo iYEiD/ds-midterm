@@ -19,6 +19,7 @@ from rag.vector_store import get_vector_store
 from rag.retriever import StatsRetriever
 from rag.llm_augmenter import LLMAugmenter
 from orchestrator import JobOrchestrator
+from monitoring.metrics import get_metrics_collector
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -44,6 +45,7 @@ vector_store = get_vector_store()
 retriever = StatsRetriever()
 llm_augmenter = LLMAugmenter()
 orchestrator = JobOrchestrator()
+metrics_collector = get_metrics_collector()
 
 # Request/Response Models
 class QueryRequest(BaseModel):
@@ -126,6 +128,32 @@ async def get_system_stats():
             },
             "timestamp": datetime.utcnow().isoformat()
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Metrics endpoint
+@app.get("/api/v1/metrics")
+async def get_metrics():
+    """Get comprehensive system metrics and health status."""
+    try:
+        report = metrics_collector.get_comprehensive_report()
+        return report
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/metrics/scraping")
+async def get_scraping_metrics():
+    """Get scraping-specific metrics."""
+    try:
+        return metrics_collector.get_scraping_metrics()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/metrics/system")
+async def get_system_resource_metrics():
+    """Get system resource usage metrics."""
+    try:
+        return metrics_collector.get_system_metrics()
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
