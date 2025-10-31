@@ -1,0 +1,155 @@
+.leaders {
+  color: white;
+}
+
+.leaders h2 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.control-group label {
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.control-group select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.refresh-button {
+  padding: 0.5rem 1.5rem;
+  background: #1d428a;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s;
+  white-space: nowrap;
+}
+
+.refresh-button:hover:not(:disabled) {
+  background: #2a5298;
+}
+
+.refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.chart-container {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.custom-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.custom-tooltip p {
+  margin: 0.25rem 0;
+}
+
+.leaders-table {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #1d428a;
+  color: white;
+}
+
+th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+tbody tr {
+  border-bottom: 1px solid #ddd;
+  transition: background 0.3s;
+}
+
+tbody tr:hover {
+  background: #f8f9fa;
+}
+
+tbody tr.top-three {
+  background: #fff3cd;
+}
+
+tbody tr.top-three:hover {
+  background: #ffe69c;
+}
+
+td {
+  padding: 1rem;
+  color: #333;
+}
+
+.rank {
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  width: 80px;
+}
+
+.player-name {
+  font-weight: 500;
+}
+
+.stat-value {
+  text-align: right;
+  font-weight: bold;
+  color: #1d428a;
+}
+
+.no-data {
+  text-align: center;
+  padding: 3rem;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  font-size: 1.2rem;
+}
